@@ -83,11 +83,16 @@
     (rf/subscribe [:questions])
     (rf/subscribe [:components])])
  (fn [[selected-question questions components]]
-   (println selected-question questions components)
-      (let [c-on-page (:components (components selected-question))]
-          (map components c-on-page))
-   )
-   )
+   (let [c-on-page (:components (components selected-question))]
+     (map components c-on-page))))
+
+(rf/reg-sub
+ :question-list
+ (fn [_ _]
+   [(rf/subscribe [:questions])
+    (rf/subscribe [:components])])
+ (fn [[questions components]]
+   (map components questions)))
 
 (def style-label {:font-weight 700})
 (def style-descr {:font-weight 400
@@ -136,14 +141,12 @@
                     :float "left"
                     :min-height "100vh"})
 (defn sidebar []
+
   [:div {:style style-sidebar}
    [:ul
-    [:li "item 1"]
-    [:li "item 2"]
-    [:li "item 2"]
-    [:li "item 2"]
-    [:li "item 2"]
-    [:li "item 3"]]])
+    (for [q @(rf/subscribe [:question-list])]
+      ^{:key (:id q)}
+      [:li (:label q)])]])
 
 (defn frame [header sidebar content footer]
   [:div
@@ -161,7 +164,6 @@
 
 (defn ^:before-load my-before-reload-callback []
   (println "BEFORE reload!!!"))
-
 
 (defn ^:after-load my-after-reload-callback []
   (mount))
