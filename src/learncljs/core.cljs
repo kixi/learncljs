@@ -1,71 +1,13 @@
 (ns ^:figwheel-hooks learncljs.core
   (:require [reagent.core :as r]
             [re-frame.core :as rf]
-            [goog.dom :as gdom]))
-
-(js/console.log "Hello World!")
+            [goog.dom :as gdom]
+            [learncljs.events :as e]
+            [learncljs.routes :as routes]))
 
 (defn get-app-element []
   (gdom/getElement "app"))
 
-(rf/reg-event-db
- :init-db
- (fn [db _]
-   {:name "Version"
-    :count 0
-    :components {:c1 {:id :c1
-                      :type :input
-                      :label "Vorname"}
-                 :c2 {:id :c2
-                      :type :input
-                      :label "Nachname"}
-                 :c3 {:id :c3
-                      :type :input
-                      :label "WTF"}
-                 :q1 {:id :q1
-                      :label "Question 1"
-                      :components [:c1 :c2]}
-                 :q2 {:id :q2
-                      :label "Question 2"
-                      :components [:c3]}}
-
-    :questions [:q1 :q2]
-    :selected-question :q1
-    :visibility #{:c1 :c2 :c3}
-    :values {:c1 "Hello"
-             :c2 "World"}
-    :temp-values {:c1 ""
-                  :c2 ""}}))
-
-(rf/reg-event-db
- :inc
- (fn [db _]
-   (update db :count inc)))
-
-(rf/reg-event-db
- :set-text
- (fn [db [_ [component value]]]
-   (assoc-in db [:values component] value)))
-
-(rf/reg-event-db
- :set-text-temp
- (fn [db [_ [component value]]]
-   (assoc-in db [:temp-values component] value)))
-
-(rf/reg-event-db
- :show
- (fn [db [_ component]]
-   (update db :visibility conj component)))
-
-(rf/reg-event-db
- :hide
- (fn [db [_ component]]
-   (update db :visibility disj component)))
-
-(rf/reg-event-db
- :select-question
- (fn [db [_ question]]
-   (assoc db :selected-question question)))
 
 (rf/reg-sub :name (fn [db _] (:name db)))
 (rf/reg-sub :count (fn [db _] (:count db)))
@@ -133,8 +75,8 @@
                 :label (:label c)
                 :description "Descr"
                 :id (:id c)
-                :on-save #(rf/dispatch [:set-text [(:id c) %]])
-                :on-change #(rf/dispatch [:set-text-temp [(:id c) %]])}]])
+                :on-save #(rf/dispatch [::e/set-text [(:id c) %]])
+                :on-change #(rf/dispatch [::e/set-text-temp [(:id c) %]])}]])
      [model]]))
 
 (def style-sidebar {:padding "1rem"
@@ -146,7 +88,7 @@
    [:ul
     (for [q @(rf/subscribe [:question-list])]
       ^{:key (:id q)}
-      [:li (:label q)])]])
+      [:li [:a {:href (str "/#/question/" (name (:id q)))} (:label q)]])]])
 
 (defn frame [header sidebar content footer]
   [:div
@@ -169,13 +111,14 @@
   (mount))
 
 (defn ^:export init []
-  (rf/dispatch-sync [:init-db])
+  (rf/dispatch-sync [::e/init-db])
+  (routes/app-routes)
   (mount))
 
 ;;(init)
 
 ;;
-;; (rf/dispatch [:init-db])
-;; (rf/dispatch [:show :c2])
-(rf/dispatch [:select-question :q2])
+;; (rf/dispatch [::e/init-db])
+;; (rf/dispatch [::e/show :c2])
+(rf/dispatch [::e/select-question :q1])
 ;; (rf/dispatch [:hide :c2])
