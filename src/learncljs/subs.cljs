@@ -6,19 +6,36 @@
 (rf/reg-sub ::components (fn [db _] (:components db)))
 (rf/reg-sub ::values (fn [db _] (:values db)))
 (rf/reg-sub ::temp-values (fn [db _] (:temp-values db)))
-(rf/reg-sub ::visibility (fn [db _] (:visibility db)))
 (rf/reg-sub ::selected-question (fn [db _] (:selected-question db)))
 (rf/reg-sub ::questions (fn [db _] (:questions db)))
+(rf/reg-sub ::visibility-rules (fn [db _] (:visibility-rules db)))
+
+(rf/reg-sub
+ ::visibility
+ (fn [_ _]
+   [(rf/subscribe [::values])
+    (rf/subscribe [::visibility-rules])
+    (rf/subscribe [::components])])
+ (fn [[values visibility-rules components]]
+   (println values visibility-rules components)
+   (let [rules-for (into #{} (keys visibility-rules))
+         all-comps (into #{} (keys components))
+         always-visible (clojure.set/difference all-comps rules-for)]
+     )))
 
 (rf/reg-sub
  ::form-components
  (fn [_ _]
    [(rf/subscribe [::selected-question])
     (rf/subscribe [::questions])
-    (rf/subscribe [::components])])
- (fn [[selected-question questions components]]
+    (rf/subscribe [::components])
+    (rf/subscribe [::visibility])])
+ (fn [[selected-question questions components visibilities]]
    (let [c-on-page (:components (components selected-question))]
-     (map components c-on-page))))
+     (->> c-on-page
+          (filter visibilities)
+          (map components)
+          ))))
 
 (rf/reg-sub
  ::question-list

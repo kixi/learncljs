@@ -7,24 +7,33 @@
    {:name "Version"
     :count 0
     :components {:c1 {:id :c1
-                      :type :input
+                      :type :text
                       :label "Vorname"}
                  :c2 {:id :c2
-                      :type :input
+                      :type :text
                       :label "Nachname"}
                  :c3 {:id :c3
-                      :type :input
+                      :type :text
                       :label "WTF"}
+                 :c4 {:id :c4
+                      :type :radio
+                      :options ["yes" "no"]
+                      :label "Please select"}
+                 :c5 {:id :c5
+                      :type :text
+                      :label "Label 5"}
                  :q1 {:id :q1
                       :label "Question 1"
                       :components [:c1 :c2]}
                  :q2 {:id :q2
                       :label "Question 2"
-                      :components [:c3]}}
+                      :components [:c4 :c3]}}
+
+    :visibility-rules {:c1 ['= :c5 "yes"]}
 
     :questions [:q1 :q2]
     :selected-question :q1
-    :visibility #{:c1 :c2 :c3}
+    :visibility #{:c1 :c2 :c3 :c4 :c5}
     :values {:c1 "Hello"
              :c2 "World"}
     :temp-values {:c1 ""

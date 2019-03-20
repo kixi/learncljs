@@ -15,7 +15,25 @@
                   :color "rgba(0,0,0,.8)"
                   :background-color "white"})
 
-(defn input [{:keys [id value label description error on-save on-change]}]
+(defmulti component (fn [{:keys [type]}] type))
+
+(defmethod component :radio [{:keys [id options value label description error on-save on-change]}]
+  [:label
+   [:div {:style {:margin "1rem 0"}}
+    [:div {:style style-label} label]
+    (when description [:div {:style style-descr} description])]
+   (println options)
+   (for [o options]
+     ^{:key o}
+     [:div
+      [:input {:style style-input
+               :name id
+               :type "radio"
+               :value o
+               :on-change #(on-change (-> % .-target .-value))
+               :on-blur #(on-save (-> % .-target .-value))}] o])])
+
+(defmethod component :text [{:keys [id value label description error on-save on-change]}]
   [:label
    [:div {:style {:margin "1rem 0"}}
     [:div {:style style-label} label]
@@ -31,19 +49,21 @@
 
 (defn form []
   (let [components @(rf/subscribe [::s/form-components])
-        values @(rf/subscribe [::s/temp-values])
-        visibility @(rf/subscribe [::s/visibility])]
+        values @(rf/subscribe [::s/temp-values])]
     [:div {:style {:padding "1rem"}}
-     (for [c components
-           :when (visibility (:id c))]
+     (for [c components]
        ^{:key (:id c)}
        [:div
-        [input {:value (values (:id c))
-                :label (:label c)
-                :description "Descr"
-                :id (:id c)
-                :on-save #(rf/dispatch [::e/set-text [(:id c) %]])
-                :on-change #(rf/dispatch [::e/set-text-temp [(:id c) %]])}]])
+
+        [component
+         {:type (:type c)
+          :options (:options c)
+          :value (values (:id c))
+          :label (:label c)
+          :description "Descr"
+          :id (:id c)
+          :on-save #(rf/dispatch [::e/set-text [(:id c) %]])
+          :on-change #(rf/dispatch [::e/set-text-temp [(:id c) %]])}]])
      [model]]))
 
 (def style-sidebar {:padding "1rem"
