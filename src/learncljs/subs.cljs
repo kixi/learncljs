@@ -17,20 +17,18 @@
     (rf/subscribe [::visibility-rules])
     (rf/subscribe [::components])])
  (fn [[values visibility-rules components]]
-   (println values visibility-rules components)
    (let [rules-for (into #{} (keys visibility-rules))
          all-comps (into #{} (keys components))
          always-visible (clojure.set/difference all-comps rules-for)]
-     )))
+     always-visible)))
 
 (rf/reg-sub
  ::form-components
  (fn [_ _]
    [(rf/subscribe [::selected-question])
-    (rf/subscribe [::questions])
     (rf/subscribe [::components])
     (rf/subscribe [::visibility])])
- (fn [[selected-question questions components visibilities]]
+ (fn [[selected-question components visibilities]]
    (let [c-on-page (:components (components selected-question))]
      (->> c-on-page
           (filter visibilities)

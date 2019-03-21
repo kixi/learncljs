@@ -22,7 +22,6 @@
    [:div {:style {:margin "1rem 0"}}
     [:div {:style style-label} label]
     (when description [:div {:style style-descr} description])]
-   (println options)
    (for [o options]
      ^{:key o}
      [:div
