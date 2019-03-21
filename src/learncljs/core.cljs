@@ -31,4 +31,4 @@
 ;; (rf/dispatch [::e/init-db])
 ;; (rf/dispatch [::e/show :c2])
 (rf/dispatch [::e/select-question :q1])
-;; (rf/dispatch [:hide :c2])
+;; (rf/dispatch [:hide :c1])
