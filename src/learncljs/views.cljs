@@ -37,7 +37,6 @@
           [:input option-style] o]))]))
 
 (defmethod component :text [{:keys [id value label description error on-save on-change]}]
-  (println "Text Value" value)
   [:label
    [:div {:style {:margin "1rem 0"}}
     [:div {:style style-label} label]
@@ -54,7 +53,6 @@
 (defn form []
   (let [components @(rf/subscribe [::s/form-components])
         values @(rf/subscribe [::s/temp-values])]
-    (println "form values" values)
     [:div {:style {:padding "1rem"}}
      (for [c components]
        ^{:key (:id c)}
@@ -75,12 +73,13 @@ re-frame.db
                     :float "left"
                     :min-height "100vh"})
 (defn sidebar []
-
-  [:div {:style style-sidebar}
-   [:ul
-    (for [q @(rf/subscribe [::s/question-list])]
-      ^{:key (:id q)}
-      [:li [:a {:href (str "/#/question/" (name (:id q)))} (:label q)]])]])
+  (let [sel @(rf/subscribe [::s/selected-question])]
+    [:div {:style style-sidebar}
+     [:ul
+      (for [q @(rf/subscribe [::s/question-list])]
+        ^{:key (:id q)}
+        [:li [:a {:href (str "/#/question/" (name (:id q))) 
+                  :style {:font-weight (if (= sel (:id q)) "bold" "normal")}} (:label q)]])]]))
 
 (defn frame [header sidebar content footer]
   [:div
