@@ -27,9 +27,9 @@
                       :components [:c1 :c2]}
                  :q2 {:id :q2
                       :label "Question 2"
-                      :components [:c4 :c3]}}
+                      :components [:c4 :c3 :c5]}}
 
-    :visibility-rules {:c1 ['= :c5 "yes"]}
+    :visibility-rules {:c5 ['= :c4 "yes"]}
 
     :questions [:q1 :q2]
     :selected-question :q1

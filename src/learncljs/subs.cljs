@@ -10,6 +10,15 @@
 (rf/reg-sub ::questions (fn [db _] (:questions db)))
 (rf/reg-sub ::visibility-rules (fn [db _] (:visibility-rules db)))
 
+(defn eval-rule [[op field v0] values]
+  (let [val (get-in values [field])]
+    (println op field v0 val)
+    (= val v0)))
+
+(defn log-intercept [x]
+  (println "log...." x)
+  x)
+
 (rf/reg-sub
  ::visibility
  (fn [_ _]
@@ -19,8 +28,14 @@
  (fn [[values visibility-rules components]]
    (let [rules-for (into #{} (keys visibility-rules))
          all-comps (into #{} (keys components))
-         always-visible (clojure.set/difference all-comps rules-for)]
-     always-visible)))
+         always-visible (clojure.set/difference all-comps rules-for)
+         cond-visible (->> visibility-rules
+                           (map (fn [[k rule]] [k (eval-rule rule values)]))
+                           (filter (fn [[k visible]]
+                                     visible))
+                           (map first)
+                           (into #{}))]
+     (clojure.set/union always-visible cond-visible))))
 
 (rf/reg-sub
  ::form-components
@@ -32,8 +47,7 @@
    (let [c-on-page (:components (components selected-question))]
      (->> c-on-page
           (filter visibilities)
-          (map components)
-          ))))
+          (map components)))))
 
 (rf/reg-sub
  ::question-list

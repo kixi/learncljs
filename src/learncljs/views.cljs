@@ -18,21 +18,26 @@
 (defmulti component (fn [{:keys [type]}] type))
 
 (defmethod component :radio [{:keys [id options value label description error on-save on-change]}]
-  [:label
-   [:div {:style {:margin "1rem 0"}}
-    [:div {:style style-label} label]
-    (when description [:div {:style style-descr} description])]
-   (for [o options]
-     ^{:key o}
-     [:div
-      [:input {:style style-input
-               :name id
-               :type "radio"
-               :value o
-               :on-change #(on-change (-> % .-target .-value))
-               :on-blur #(on-save (-> % .-target .-value))}] o])])
+  (letfn [(on-click [opt-val]
+            (on-save opt-val)
+            (on-change opt-val)) ]
+    [:label
+     [:div {:style {:margin "1rem 0"}}
+      [:div {:style style-label} label]
+      (when description [:div {:style style-descr} description])]
+     (for [o options]
+       (let [option-style  {:style style-input
+                            :name id
+                            :type "radio"
+                            :value o
+                            :checked (= value o)
+                            :on-change #(on-click (-> % .-target .-value))}]
+         ^{:key o}
+         [:div
+          [:input option-style] o]))]))
 
 (defmethod component :text [{:keys [id value label description error on-save on-change]}]
+  (println "Text Value" value)
   [:label
    [:div {:style {:margin "1rem 0"}}
     [:div {:style style-label} label]
@@ -49,6 +54,7 @@
 (defn form []
   (let [components @(rf/subscribe [::s/form-components])
         values @(rf/subscribe [::s/temp-values])]
+    (println "form values" values)
     [:div {:style {:padding "1rem"}}
      (for [c components]
        ^{:key (:id c)}
@@ -64,7 +70,7 @@
           :on-save #(rf/dispatch [::e/set-text [(:id c) %]])
           :on-change #(rf/dispatch [::e/set-text-temp [(:id c) %]])}]])
      [model]]))
-
+re-frame.db
 (def style-sidebar {:padding "1rem"
                     :float "left"
                     :min-height "100vh"})
