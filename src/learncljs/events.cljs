@@ -49,10 +49,11 @@
  (fn [db _]
    (update db :count inc)))
 
-(rf/reg-event-db 
+(rf/reg-event-fx 
  ::set-text
- (fn [db [_ [component value]]]
-   (assoc-in db [:values component] value)))
+ (fn [cofx [_ [component value]]]
+   {:db (assoc-in (:db cofx) [:values component] value)
+    :dispatch [::validate]}))
 
 (rf/reg-event-db
  ::set-text-temp
@@ -73,3 +74,32 @@
  ::select-question
  (fn [db [_ question]]
    (assoc db :selected-question question)))
+
+(defn eval-validation-rule [{:keys [rule] :as validation} values]
+  (let [[r id & params] rule
+        v (values id)]
+    (println rule v r)
+    (condp = r
+      :required (and v (> (.-length (.trim v)) 0))
+      :min-length (if v (>= (.-length (.trim v)) 3) true)
+      true)))
+
+(eval-validation-rule {:rule [:required :c1] :show [:c1] :error "Field is required"} {:c1 "   "})
+(eval-validation-rule {:rule [:min-length :c1 3] :show [:c1] :error "Field is required"} {:c2 "224"})
+
+(rf/reg-event-db
+ ::validate
+ (fn [db [_ _]]
+   (let [values (:values db)
+         validations (:validations db)]
+     (assoc db :validation-errors
+            (->> validations
+                 (filter #(not (eval-validation-rule % values)))
+                 (map (fn [rule] [(first (:show rule)) rule]))
+                 (group-by (fn [[k r]] k))
+                 )))))
+
+(rf/reg-event-fx
+ ::save-letter
+ (fn [cofx [_ _]]
+   {:db (assoc (:db cofx) :persistance :saving)}))

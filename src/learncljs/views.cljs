@@ -51,7 +51,9 @@
             :on-blur #(on-save (-> % .-target .-value))}]])
 
 (defn model []
-  [:div (str @(rf/subscribe [::s/values]))])
+  [:div
+   [:div (str @(rf/subscribe [::s/values]))]
+   [:div (str @(rf/subscribe [::s/validation-errors]))]])
 
 (defn form []
   (let [components @(rf/subscribe [::s/form-components])
@@ -73,7 +75,12 @@
           :on-save #(rf/dispatch [::e/set-text [(:id c) %]])
           :on-change #(rf/dispatch [::e/set-text-temp [(:id c) %]])}]])
      [model]]))
-re-frame.db
+
+(defn top-bar []
+  [:div
+   [:button  {:on-click #(rf/dispatch [::e/save-letter])
+              :style {:float "right"}} "save"]])
+
 (def style-sidebar {:padding "1rem"
                     :float "left"
                     :min-height "100vh"})
@@ -94,4 +101,4 @@ re-frame.db
 
 (defn main-panel []
   [frame
-   [:div] [sidebar] [form] [:div]])
+   [top-bar] [sidebar] [form] [:div]])
