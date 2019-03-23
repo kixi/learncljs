@@ -37,12 +37,13 @@
                   ]
 
     :questions [:q1 :q2]
+    :touched #{}
     :selected-question :q1
     :visibility #{:c1 :c2 :c3 :c4 :c5}
     :values {:c1 "Hello"
              :c2 "World"}
-    :temp-values {:c1 ""
-                  :c2 ""}}))
+    :temp-values {:c1 "Hello"
+                  :c2 "World"}}))
 
 (rf/reg-event-db
  ::inc
@@ -51,8 +52,10 @@
 
 (rf/reg-event-fx 
  ::set-text
- (fn [cofx [_ [component value]]]
-   {:db (assoc-in (:db cofx) [:values component] value)
+ (fn [{:keys [db]} [_ [component value]]]
+   {:db (-> db
+            (assoc-in [:values component] value)
+            (update-in [:touched] conj component))
     :dispatch [::validate]}))
 
 (rf/reg-event-db

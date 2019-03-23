@@ -11,6 +11,7 @@
 (rf/reg-sub ::visibility-rules (fn [db _] (:visibility-rules db)))
 (rf/reg-sub ::validations (fn [db _] (:validations db)))
 (rf/reg-sub ::validation-errors (fn [db _] (:validation-errors db)))
+(rf/reg-sub ::touched (fn [db _] (:touched db)))
 
 (defn eval-rule [[op field v0] values]
   (let [val (get-in values [field])]
@@ -63,11 +64,12 @@
 (rf/reg-sub
  ::validation-error-messages
  (fn [_ _]
-   [(rf/subscribe [::validation-errors])])
- (fn [[validation-errors]]
+   [(rf/subscribe [::validation-errors])
+    (rf/subscribe [::touched])])
+ (fn [[validation-errors touched]]
    (->> validation-errors
-        log-intercept
         (map (fn [[k v]] [k "Validation Error"]))
+        (filter (fn [[k v]] (touched k)))
         (into {})
-        log-intercept)
+        )
    ))
