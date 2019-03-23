@@ -6,6 +6,8 @@
 (def style-label {:font-weight 700})
 (def style-descr {:font-weight 400
                   :color "#757575"})
+(def style-error {:font-weight 700
+                  :color "#750000"})
 (def style-input {:height "2rem"
                   :font-size "16px"
                   :border "0.0625rem solid rgba(0,0,0,.2)"
@@ -40,7 +42,8 @@
   [:label
    [:div {:style {:margin "1rem 0"}}
     [:div {:style style-label} label]
-    (when description [:div {:style style-descr} description])]
+    (when description [:div {:style style-descr} description])
+    (when error [:div {:style style-error} error])]
    [:input {:style style-input
             :type "text"
             :value value
@@ -52,7 +55,8 @@
 
 (defn form []
   (let [components @(rf/subscribe [::s/form-components])
-        values @(rf/subscribe [::s/temp-values])]
+        values @(rf/subscribe [::s/temp-values])
+        error-messages @(rf/subscribe [::s/validation-error-messages])]
     [:div {:style {:padding "1rem"}}
      (for [c components]
        ^{:key (:id c)}
@@ -63,6 +67,7 @@
           :options (:options c)
           :value (values (:id c))
           :label (:label c)
+          :error (error-messages (:id c))
           :description "Descr"
           :id (:id c)
           :on-save #(rf/dispatch [::e/set-text [(:id c) %]])

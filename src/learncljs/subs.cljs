@@ -9,10 +9,10 @@
 (rf/reg-sub ::selected-question (fn [db _] (:selected-question db)))
 (rf/reg-sub ::questions (fn [db _] (:questions db)))
 (rf/reg-sub ::visibility-rules (fn [db _] (:visibility-rules db)))
+(rf/reg-sub ::validations (fn [db _] (:validations db)))
 
 (defn eval-rule [[op field v0] values]
   (let [val (get-in values [field])]
-    (println op field v0 val)
     (= val v0)))
 
 (defn log-intercept [x]
@@ -56,3 +56,45 @@
     (rf/subscribe [::components])])
  (fn [[questions components]]
    (map components questions)))
+
+
+(defn eval-validation-rule [{:keys [rule] :as validation} values]
+  (let [[r id & params] rule
+        v (values id)]
+    (println rule v r)
+    (condp = r
+      :required (and v (> (.-length (.trim v)) 0))
+      :min-length (if v (>= (.-length (.trim v)) 3) true)
+      true)))
+
+(eval-validation-rule {:rule [:required :c1] :show [:c1] :error "Field is required"} {:c1 "   "})
+(eval-validation-rule {:rule [:min-length :c1 3] :show [:c1] :error "Field is required"} {:c2 "224"})
+
+
+(rf/reg-sub
+ ::validation-errors
+ (fn [_ _]
+   [(rf/subscribe [::values])
+    (rf/subscribe [::validations])])
+ (fn [[values validations]]
+   (->> validations
+        log-intercept
+        (filter #(not (eval-validation-rule % values)))
+        log-intercept
+        (map (fn [rule] [(first (:show rule)) rule]))
+        log-intercept
+        (group-by (fn [[k r]] k))
+        log-intercept
+        )))
+
+(rf/reg-sub
+ ::validation-error-messages
+ (fn [_ _]
+   [(rf/subscribe [::validation-errors])])
+ (fn [[validation-errors]]
+   (->> validation-errors
+        log-intercept
+        (map (fn [[k v]] [k "Validation Error"]))
+        (into {})
+        log-intercept)
+   ))

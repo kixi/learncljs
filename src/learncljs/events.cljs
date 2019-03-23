@@ -30,6 +30,11 @@
                       :components [:c4 :c3 :c5]}}
 
     :visibility-rules {:c5 ['= :c4 "yes"]}
+    :validations [{:rule [:required :c1] :show [:c1] :error "Field is required"}
+                  {:rule [:min-length :c1 3] :show [:c1] :error "At least 3 chars required"}
+                  {:rule [:min-length :c2 3] :show [:c2] :error "At least 3 chars required"}
+                  {:rule [:required :c5] :show [:c5] :error "Field is required"}
+                  ]
 
     :questions [:q1 :q2]
     :selected-question :q1
@@ -44,7 +49,7 @@
  (fn [db _]
    (update db :count inc)))
 
-(rf/reg-event-db
+(rf/reg-event-db 
  ::set-text
  (fn [db [_ [component value]]]
    (assoc-in db [:values component] value)))
