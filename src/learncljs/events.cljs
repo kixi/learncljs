@@ -39,7 +39,7 @@
     :questions [:q1 :q2]
     :touched #{}
     :selected-question :q1
-    :visibility #{:c1 :c2 :c3 :c4 :c5}
+    :visibilities  #{:c1 :c2 :c3 :c4 :c5}
     :values {:c1 "Hello"
              :c2 "World"}
     :temp-values {:c1 "Hello"
@@ -56,7 +56,7 @@
    {:db (-> db
             (assoc-in [:values component] value)
             (update-in [:touched] conj component))
-    :dispatch [::validate]}))
+    :dispatch [::update-visibilities ::validate]}))
 
 (rf/reg-event-db
  ::set-text-temp
@@ -101,6 +101,28 @@
                  (map (fn [rule] [(first (:show rule)) rule]))
                  (group-by (fn [[k r]] k))
                  )))))
+
+
+(defn eval-rule [[op field v0] values]
+  (let [val (get-in values [field])]
+    (= val v0)))
+
+(rf/reg-event-db
+ ::update-visibilities
+ (fn [db [_ _]]
+   (let [values (:values db)
+         visibility-rules (:visibility-rules db)
+         components (:components db)]
+     (let [rules-for (into #{} (keys visibility-rules))
+           all-comps (into #{} (keys components))
+           always-visible (clojure.set/difference all-comps rules-for)
+           cond-visible (->> visibility-rules
+                             (map (fn [[k rule]] [k (eval-rule rule values)]))
+                             (filter (fn [[k visible]]
+                                       visible))
+                             (map first)
+                             (into #{}))]
+       (assoc-in db [:visibilities] (clojure.set/union always-visible cond-visible))))))
 
 (rf/reg-event-fx
  ::save-letter

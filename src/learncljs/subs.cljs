@@ -12,39 +12,20 @@
 (rf/reg-sub ::validations (fn [db _] (:validations db)))
 (rf/reg-sub ::validation-errors (fn [db _] (:validation-errors db)))
 (rf/reg-sub ::touched (fn [db _] (:touched db)))
+(rf/reg-sub ::visibilities (fn [db _] (:visibilities db)))
 
-(defn eval-rule [[op field v0] values]
-  (let [val (get-in values [field])]
-    (= val v0)))
 
 (defn log-intercept [x]
   (println "log...." x)
   x)
 
-(rf/reg-sub
- ::visibility
- (fn [_ _]
-   [(rf/subscribe [::values])
-    (rf/subscribe [::visibility-rules])
-    (rf/subscribe [::components])])
- (fn [[values visibility-rules components]]
-   (let [rules-for (into #{} (keys visibility-rules))
-         all-comps (into #{} (keys components))
-         always-visible (clojure.set/difference all-comps rules-for)
-         cond-visible (->> visibility-rules
-                           (map (fn [[k rule]] [k (eval-rule rule values)]))
-                           (filter (fn [[k visible]]
-                                     visible))
-                           (map first)
-                           (into #{}))]
-     (clojure.set/union always-visible cond-visible))))
 
 (rf/reg-sub
  ::form-components
  (fn [_ _]
    [(rf/subscribe [::selected-question])
     (rf/subscribe [::components])
-    (rf/subscribe [::visibility])])
+    (rf/subscribe [::visibilities])])
  (fn [[selected-question components visibilities]]
    (let [c-on-page (:components (components selected-question))]
      (->> c-on-page
@@ -58,7 +39,6 @@
     (rf/subscribe [::components])])
  (fn [[questions components]]
    (map components questions)))
-
 
 
 (rf/reg-sub
