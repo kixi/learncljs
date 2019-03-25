@@ -39,7 +39,7 @@
     :questions [:q1 :q2]
     :touched #{}
     :selected-question :q1
-    :visibilities  #{:c1 :c2 :c3 :c4 :c5}
+    :visibilities  #{:c1 :c2 :c3 :c4}
     :values {:c1 "Hello"
              :c2 "World"}
     :temp-values {:c1 "Hello"
@@ -56,7 +56,7 @@
    {:db (-> db
             (assoc-in [:values component] value)
             (update-in [:touched] conj component))
-    :dispatch [::update-visibilities ::validate]}))
+    :dispatch-n [[::update-visibilities] [::validate]]}))
 
 (rf/reg-event-db
  ::set-text-temp
