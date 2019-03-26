@@ -98,8 +98,7 @@
      (assoc db :validation-errors
             (->> validations
                  (filter #(not (eval-validation-rule % values)))
-                 (map (fn [rule] [(first (:show rule)) rule]))
-                 (group-by (fn [[k r]] k))
+                 (group-by (fn [rule] (first (:show rule))))
                  )))))
 
 

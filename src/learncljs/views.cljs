@@ -83,6 +83,7 @@
 
 (def style-sidebar {:padding "1rem"
                     :float "left"
+                    :min-width "12rem"
                     :min-height "100vh"})
 (defn sidebar []
   (let [sel @(rf/subscribe [::s/selected-question])]

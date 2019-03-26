@@ -48,8 +48,9 @@
     (rf/subscribe [::touched])])
  (fn [[validation-errors touched]]
    (->> validation-errors
-        (map (fn [[k v]] [k "Validation Error"]))
         (filter (fn [[k v]] (touched k)))
+        (map (fn [[k rules]] [k (:error (first rules))]))
         (into {})
         )
    ))
+re-frame.db
