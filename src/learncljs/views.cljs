@@ -28,7 +28,7 @@
       [:div {:style style-label} label]
       (when description [:div {:style style-descr} description])]
      (for [o options]
-       (let [option-style  {:style style-input
+       (let [option-style  {:style {}
                             :name id
                             :type "radio"
                             :value o
@@ -36,7 +36,7 @@
                             :on-change #(on-click (-> % .-target .-value))}]
          ^{:key o}
          [:div
-          [:input option-style] o]))]))
+          [:input option-style] [:span {:style {:padding "0.5rem"}} o]]))]))
 
 (defmethod component :text [{:keys [id value label description error on-save on-change]}]
   [:label

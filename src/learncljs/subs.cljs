@@ -53,4 +53,3 @@
         (into {})
         )
    ))
-re-frame.db
