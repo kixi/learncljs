@@ -52,45 +52,45 @@
 
 (defn model []
   [:div
-   [:div (str @(rf/subscribe [::s/values]))]
+   [:div (str @(rf/subscribe [::s/temp-values]))]
    [:div (str @(rf/subscribe [::s/validation-errors]))]])
 
 (declare panel)
 
-(defn edit-grid-row [components row]
+(defn edit-grid-row [components values [idx row]]
   (println "ROW" components row)
-  [panel components row {}]
+  [panel components values {} idx]
   )
 
-(defn edit-grid [c grid-values]
+(defn edit-grid [c grid-values values]
   (let [components @(rf/subscribe [::s/edit-grid-components (:id c)])]
     (println "EDIT-GRID" grid-values)
     [:div 
-     (for [r grid-values]
-       [edit-grid-row components r])]
+     (for [r (map-indexed vector grid-values)]
+       [edit-grid-row components values r])]
     ))
 
-(defn dyn-create-component [c values error-messages]
+(defn dyn-create-component [c values error-messages idx]
   [:div
    (if (= (:type c) :edit-grid)
-     [edit-grid c (values (:id c))]
+     [edit-grid c (values (:id c)) values]
      [component
       {:type (:type c)
        :options (:options c)
-       :value (values (:id c))
+       :value (values [idx (:id c)])
        :label (:label c)
        :error (error-messages (:id c))
        :description "Descr"
        :id (:id c)
-       :on-save #(rf/dispatch [::e/set-text [(:id c) %]])
-       :on-change #(rf/dispatch [::e/set-text-temp [(:id c) %]])}])])
+       :on-save #(rf/dispatch [::e/set-text [[idx (:id c)] %]])
+       :on-change #(rf/dispatch [::e/set-text-temp [[idx (:id c)] %]])}])])
 
-(defn panel [components values error-messages]
+(defn panel [components values error-messages idx]
   (println "PANEL")
   [:div {:style {:padding "1rem"}}
    (for [c components]
      ^{:key (:id c)}
-     [dyn-create-component c values error-messages])
+     [dyn-create-component c values error-messages idx])
    [model]]
   )
 
@@ -98,7 +98,7 @@
   (let [components @(rf/subscribe [::s/form-components])
         values @(rf/subscribe [::s/temp-values])
         error-messages @(rf/subscribe [::s/validation-error-messages])]
-    [panel components values error-messages]))
+    [panel components values error-messages 0]))
 
 (defn top-bar []
   [:div
