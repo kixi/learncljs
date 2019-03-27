@@ -55,26 +55,44 @@
    [:div (str @(rf/subscribe [::s/values]))]
    [:div (str @(rf/subscribe [::s/validation-errors]))]])
 
+(declare panel)
+
+(defn edit-grid-row [c row]
+  [:div (str row)])
+
+(defn edit-grid [c grid-values]
+  [:div
+   (for [row grid-values]
+     [:edit-grid-row c row])])
+
+(defn dyn-create-component [c values error-messages]
+  [:div
+   (if (= (:type c) :edit-grid)
+     [edit-grid c (values (:id c))]
+     [component
+      {:type (:type c)
+       :options (:options c)
+       :value (values (:id c))
+       :label (:label c)
+       :error (error-messages (:id c))
+       :description "Descr"
+       :id (:id c)
+       :on-save #(rf/dispatch [::e/set-text [(:id c) %]])
+       :on-change #(rf/dispatch [::e/set-text-temp [(:id c) %]])}])])
+
+(defn panel [components values error-messages]
+  [:div {:style {:padding "1rem"}}
+   (for [c components]
+     ^{:key (:id c)}
+     [dyn-create-component c values error-messages])
+   [model]]
+  )
+
 (defn form []
   (let [components @(rf/subscribe [::s/form-components])
         values @(rf/subscribe [::s/temp-values])
         error-messages @(rf/subscribe [::s/validation-error-messages])]
-    [:div {:style {:padding "1rem"}}
-     (for [c components]
-       ^{:key (:id c)}
-       [:div
-
-        [component
-         {:type (:type c)
-          :options (:options c)
-          :value (values (:id c))
-          :label (:label c)
-          :error (error-messages (:id c))
-          :description "Descr"
-          :id (:id c)
-          :on-save #(rf/dispatch [::e/set-text [(:id c) %]])
-          :on-change #(rf/dispatch [::e/set-text-temp [(:id c) %]])}]])
-     [model]]))
+    [panel components values error-messages]))
 
 (defn top-bar []
   [:div

@@ -22,9 +22,18 @@
                  :c5 {:id :c5
                       :type :text
                       :label "Label 5"}
+                 :e1 {:id :e1
+                      :type :edit-grid
+                      :components [:ce1 :ce2]}
+                 :ce1 {:id :ce1
+                       :type :text
+                       :label "CE1"}
+                 :ce2 {:id :ce2
+                       :type :text
+                       :label "CE2"}
                  :q1 {:id :q1
                       :label "Question 1"
-                      :components [:c1 :c2]}
+                      :components [:c1 :c2 :e1]}
                  :q2 {:id :q2
                       :label "Question 2"
                       :components [:c4 :c3 :c5]}}
@@ -39,11 +48,13 @@
     :questions [:q1 :q2]
     :touched #{}
     :selected-question :q1
-    :visibilities  #{:c1 :c2 :c3 :c4}
+    :visibilities  #{:c1 :c2 :c3 :c4 :e1 :ce1 :ce2}
     :values {:c1 "Hello"
-             :c2 "World"}
+             :c2 "World"
+             :e1 [{:ce1 ""} {}]}
     :temp-values {:c1 "Hello"
-                  :c2 "World"}}))
+                  :c2 "World"
+                  :e1 [{:ce1 ""} {}]}}))
 
 (rf/reg-event-db
  ::inc
