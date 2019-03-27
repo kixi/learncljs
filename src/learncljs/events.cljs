@@ -39,7 +39,7 @@
                       :components [:c4 :c3 :c5]}}
 
     :visibility-rules {:c5 ['= :c4 "yes"]}
-    :validations [{:rule [:required :c1] :show [:c1] :error "Field is required"}
+    :validations [{:rule [:required [0 :c1]] :show [[0 :c1]] :error "Field is required"}
                   {:rule [:min-length :c1 3] :show [:c1] :error "At least 3 chars required"}
                   {:rule [:min-length :c2 3] :show [:c2] :error "At least 3 chars required"}
                   {:rule [:required :c5] :show [:c5] :error "Field is required"}
