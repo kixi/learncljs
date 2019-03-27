@@ -57,13 +57,18 @@
 
 (declare panel)
 
-(defn edit-grid-row [c row]
-  [:div (str row)])
+(defn edit-grid-row [components row]
+  (println "ROW" components row)
+  [panel components row {}]
+  )
 
 (defn edit-grid [c grid-values]
-  [:div
-   (for [row grid-values]
-     [:edit-grid-row c row])])
+  (let [components @(rf/subscribe [::s/edit-grid-components (:id c)])]
+    (println "EDIT-GRID" grid-values)
+    [:div 
+     (for [r grid-values]
+       [edit-grid-row components r])]
+    ))
 
 (defn dyn-create-component [c values error-messages]
   [:div
@@ -81,6 +86,7 @@
        :on-change #(rf/dispatch [::e/set-text-temp [(:id c) %]])}])])
 
 (defn panel [components values error-messages]
+  (println "PANEL")
   [:div {:style {:padding "1rem"}}
    (for [c components]
      ^{:key (:id c)}

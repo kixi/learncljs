@@ -33,6 +33,18 @@
           (map components)))))
 
 (rf/reg-sub
+ ::edit-grid-components
+ (fn [_ _]
+   [
+    (rf/subscribe [::components])
+    (rf/subscribe [::visibilities])])
+ (fn [[components visibilities] [_ eg-id]]
+   (let [eg-components (:components (components eg-id))]
+     (->> eg-components
+          (filter visibilities)
+          (map components)))))
+
+(rf/reg-sub
  ::question-list
  (fn [_ _]
    [(rf/subscribe [::questions])
