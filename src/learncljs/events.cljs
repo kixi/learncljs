@@ -138,3 +138,6 @@
  ::save-letter
  (fn [cofx [_ _]]
    {:db (assoc (:db cofx) :persistance :saving)}))
+
+(:validations @re-frame.db/app-db)
+(:validation-errors @re-frame.db/app-db)

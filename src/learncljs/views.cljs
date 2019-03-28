@@ -79,14 +79,14 @@
        :options (:options c)
        :value (values [idx (:id c)])
        :label (:label c)
-       :error (error-messages (:id c))
+       :error (error-messages [idx (:id c)])
        :description "Descr"
        :id (:id c)
        :on-save #(rf/dispatch [::e/set-text [[idx (:id c)] %]])
        :on-change #(rf/dispatch [::e/set-text-temp [[idx (:id c)] %]])}])])
 
 (defn panel [components values error-messages idx]
-  (println "PANEL")
+  (println "PANEL" error-messages)
   [:div {:style {:padding "1rem"}}
    (for [c components]
      ^{:key (:id c)}

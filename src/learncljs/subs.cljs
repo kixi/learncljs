@@ -65,3 +65,5 @@
         (into {})
         )
    ))
+
+(:touched @re-frame.db/app-db)
