@@ -1,5 +1,6 @@
 (ns learncljs.views
   (:require [re-frame.core :as rf]
+            [reagent.core :as reagent]
             [learncljs.events :as e]
             [learncljs.subs :as s]))
 
@@ -39,16 +40,19 @@
           [:input option-style] [:span {:style {:padding "0.5rem"}} o]]))]))
 
 (defmethod component :text [{:keys [id value label description error on-save on-change]}]
-  [:label
-   [:div {:style {:margin "1rem 0"}}
-    [:div {:style style-label} label]
-    (when description [:div {:style style-descr} description])
-    (when error [:div {:style style-error} error])]
-   [:input {:style style-input
-            :type "text"
-            :value value
-            :on-change #(on-change (-> % .-target .-value))
-            :on-blur #(on-save (-> % .-target .-value))}]])
+  (let [local-value (reagent/atom value)]
+    (fn []
+      [:label
+       [:div {:style {:margin "1rem 0"}}
+        [:div {:style style-label} label]
+        (when description [:div {:style style-descr} description])
+        (when error [:div {:style style-error} error])]
+       [:input {:style style-input
+                :on-focus #(do (reset! local-value value))
+                :type "text"
+                :value @local-value
+                :on-change #(reset! local-value (-> % .-target .-value))
+                :on-blur #(on-save (-> % .-target .-value))}]])))
 
 (defn model []
   [:div
