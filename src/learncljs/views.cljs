@@ -66,31 +66,36 @@
 
 (declare panel)
 
-(defn edit-grid-row-expanded [components values [idx row]]
+(defn edit-grid-row-expanded [components values idx]
   [panel components values {} idx]
   )
 
-(defn edit-grid-row-closed [components values [idx row]]
-  (println "edit grid row" values)
-
-  [:div (apply str (map (fn [{:keys [id]}] (str (values [idx id]) " ")) components))]
+(defn edit-grid-row-closed [components values idx]
+  (println "***EG" components)
+  (let [vals (map (fn [{:keys [id]}] (values [idx id] " "))
+                  components)]
+    (println "EG " vals)
+    [:div (apply str (map (fn [{:keys [id]}] (str (or (values [idx id])) " ")) components))])
   )
 
 (defn edit-grid-row [components values row-id]
   (let [expanded (reagent/atom false)]
     (fn [components values row-id]
-      [:div
+      [:div {:style {:diplay "flex" :flex-direction "row"}}
        [:button {:on-click #(swap! expanded not)} "v"]
        (if @expanded
          [edit-grid-row-expanded components values row-id]
-         [edit-grid-row-closed components values row-id])])))
+         [edit-grid-row-closed components values row-id])
+       ])))
 
 (defn edit-grid [c grid-values values]
   (let [components @(rf/subscribe [::s/edit-grid-components (:id c)])]
-    (println "EDIT-GRID" grid-values)
-    [:div 
-     (for [r (map-indexed vector grid-values)]
-       [edit-grid-row components values r])]
+    (println "EDIT GRID" (range  (values (c :id))) (values (c :id)) )
+    [:div
+     [:div {:on-click #(rf/dispatch [::e/add-grid-row (:id c)])} "Add" ]
+     [:div 
+      (for [r (range  (values (c :id) 0))]
+        ^{:key (str (c :id) r)}[edit-grid-row components values r])]]
     ))
 
 (defn dyn-create-component [c values error-messages idx]

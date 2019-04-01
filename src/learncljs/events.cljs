@@ -51,10 +51,15 @@
     :visibilities  #{:c1 :c2 :c3 :c4 :e1 :ce1 :ce2}
     :values {[0 :c1] "Hello"
              [0 :c2] "World"
-             :e1 [{:ce1 ""} {}]}
+             :e1 0}
     :temp-values {:c1 "Hello"
                   :c2 "World"
                   :e1 [{:ce1 ""} {}]}}))
+
+(rf/reg-event-db
+ ::add-grid-row
+ (fn [db [_ grid-component-id]]
+   (update-in db [:values grid-component-id] inc)))
 
 (rf/reg-event-db
  ::inc
@@ -143,3 +148,4 @@
 (:validations @re-frame.db/app-db)
 (:validation-errors @re-frame.db/app-db)
 (:values @re-frame.db/app-db)
+re-frame.db/app-db
