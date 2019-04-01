@@ -71,8 +71,9 @@
   )
 
 (defn edit-grid-row-closed [components values [idx row]]
-  (println "edit grid row" idx row values)
-  [:div "row"]
+  (println "edit grid row" values)
+
+  [:div (apply str (map (fn [{:keys [id]}] (str (values [idx id]) " ")) components))]
   )
 
 (defn edit-grid-row [components values row-id]
@@ -113,7 +114,7 @@
    (for [c components]
      ^{:key (:id c)}
      [dyn-create-component c values error-messages idx])
-   [model]]
+   #_[model]]
   )
 
 (defn form []
