@@ -66,10 +66,23 @@
 
 (declare panel)
 
-(defn edit-grid-row [components values [idx row]]
-  (println "ROW" components row)
+(defn edit-grid-row-expanded [components values [idx row]]
   [panel components values {} idx]
   )
+
+(defn edit-grid-row-closed [components values [idx row]]
+  (println "edit grid row" idx row values)
+  [:div "row"]
+  )
+
+(defn edit-grid-row [components values row-id]
+  (let [expanded (reagent/atom false)]
+    (fn [components values row-id]
+      [:div
+       [:button {:on-click #(swap! expanded not)} "v"]
+       (if @expanded
+         [edit-grid-row-expanded components values row-id]
+         [edit-grid-row-closed components values row-id])])))
 
 (defn edit-grid [c grid-values values]
   (let [components @(rf/subscribe [::s/edit-grid-components (:id c)])]
