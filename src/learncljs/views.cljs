@@ -40,23 +40,28 @@
           [:input option-style] [:span {:style {:padding "0.5rem"}} o]]))]))
 
 (defmethod component :text [{:keys [id value label description error on-save on-change]}]
-  (let [local-value (reagent/atom value)]
-    (fn []
+  (println label value "=> rendering input component level 1")
+  (let [local-value (reagent/atom value)
+        typing (reagent/atom false)]
+    (fn [{:keys [id value label description error on-save on-change]}]
+      (println label value local-value "=> => rendering input component level 2")
       [:label
        [:div {:style {:margin "1rem 0"}}
         [:div {:style style-label} label]
         (when description [:div {:style style-descr} description])
         (when error [:div {:style style-error} error])]
        [:input {:style style-input
-                :on-focus #(do (reset! local-value value))
+                :on-focus #(do 
+                               (reset! typing true))
                 :type "text"
-                :value @local-value
+                :value (if @typing @local-value value)
                 :on-change #(reset! local-value (-> % .-target .-value))
-                :on-blur #(on-save (-> % .-target .-value))}]])))
+                :on-blur #(do (on-save (-> % .-target .-value))
+                              (reset! typing false))}]])))
 
 (defn model []
   [:div
-   [:div (str @(rf/subscribe [::s/temp-values]))]
+   [:div (str @(rf/subscribe [::s/values]))]
    [:div (str @(rf/subscribe [::s/validation-errors]))]])
 
 (declare panel)
@@ -100,7 +105,7 @@
 
 (defn form []
   (let [components @(rf/subscribe [::s/form-components])
-        values @(rf/subscribe [::s/temp-values])
+        values @(rf/subscribe [::s/values])
         error-messages @(rf/subscribe [::s/validation-error-messages])]
     [panel components values error-messages 0]))
 

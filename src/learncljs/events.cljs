@@ -49,8 +49,8 @@
     :touched #{}
     :selected-question :q1
     :visibilities  #{:c1 :c2 :c3 :c4 :e1 :ce1 :ce2}
-    :values {:c1 "Hello"
-             :c2 "World"
+    :values {[0 :c1] "Hello"
+             [0 :c2] "World"
              :e1 [{:ce1 ""} {}]}
     :temp-values {:c1 "Hello"
                   :c2 "World"
@@ -68,6 +68,7 @@
             (assoc-in [:values component] value)
             (update-in [:touched] conj component))
     :dispatch-n [[::update-visibilities] [::validate]]}))
+
 
 (rf/reg-event-db
  ::set-text-temp
@@ -141,3 +142,4 @@
 
 (:validations @re-frame.db/app-db)
 (:validation-errors @re-frame.db/app-db)
+(:values @re-frame.db/app-db)
