@@ -38,7 +38,7 @@
                       :label "Question 2"
                       :components [:c4 :c3 :c5]}}
 
-    :visibility-rules {:c5 ['= :c4 "yes"]}
+    :visibility-rules {:c5 ['= [0 :c4] "yes"]}
     :validations [{:rule [:required [0 :c1]] :show [[0 :c1]] :error "Field is required"}
                   {:rule [:min-length :c1 3] :show [:c1] :error "At least 3 chars required"}
                   {:rule [:min-length :c2 3] :show [:c2] :error "At least 3 chars required"}
