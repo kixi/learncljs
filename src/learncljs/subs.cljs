@@ -48,9 +48,12 @@
  ::question-list
  (fn [_ _]
    [(rf/subscribe [::questions])
-    (rf/subscribe [::components])])
- (fn [[questions components]]
-   (map components questions)))
+    (rf/subscribe [::components])
+    (rf/subscribe [::visibilities])])
+ (fn [[questions components visibilities]]
+   (->> questions
+        (filter visibilities)
+        (map components))))
 
 
 (rf/reg-sub

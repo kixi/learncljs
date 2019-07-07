@@ -36,19 +36,24 @@
                       :components [:c1 :c2 :e1]}
                  :q2 {:id :q2
                       :label "Question 2"
-                      :components [:c4 :c3 :c5]}}
+                      :components [:c4 :c3 :c5]}
+                 :q3 {:id :q3
+                      :label "Question 3"
+                      :components [:c4 :c5 :c3]}}
 
-    :visibility-rules {:c5 ['= [0 :c4] "yes"]}
+    :visibility-rules {:c5 ['= [0 :c4] "yes"]
+                       :q3 ['= [0 :c1] "karl"]}
+
     :validations [{:rule [:required [0 :c1]] :show [[0 :c1]] :error "Field is required"}
                   {:rule [:min-length [0 :c1] 3] :show [[0:c1]] :error "At least 3 chars required"}
                   {:rule [:min-length [0 :c2] 3] :show [[0:c2]] :error "At least 3 chars required"}
-                  {:rule [:required [0 :c5]] :show [[0 :c5]] :error "Field is required"}
-                  ]
+                  {:rule [:required [0 :c5]] :show [[0 :c5]] :error "Field is required"}]
+                  
 
-    :questions [:q1 :q2]
+    :questions [:q1 :q2 :q3]
     :touched #{}
     :selected-question :q1
-    :visibilities  #{:c1 :c2 :c3 :c4 :e1 :ce1 :ce2}
+    :visibilities  #{:c1 :c2 :c3 :c4 :e1 :ce1 :ce2 :q1 :q2}
     :values {[0 :c1] "Hello"
              [0 :c2] "World"
              :e1 0}
@@ -115,8 +120,8 @@
      (assoc db :validation-errors
             (->> validations
                  (filter #(not (eval-validation-rule % values)))
-                 (group-by (fn [rule] (first (:show rule))))
-                 )))))
+                 (group-by (fn [rule] (first (:show rule)))))))))
+                 
 
 
 (defn eval-rule [[op field v0] values]

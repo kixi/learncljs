@@ -1,2 +1,4 @@
-^{:css-dirs ["resources/public/css"]}
-{:main learncljs.core}
+^{:css-dirs ["resources/public/css"]
+  :extra-main-files {:cards {:main learncljs.cards}}}
+{:main learncljs.core
+ :devcards true}
